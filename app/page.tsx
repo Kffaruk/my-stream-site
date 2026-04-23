@@ -9,9 +9,14 @@ interface DriveFile {
 
 export default function Home() {
   const [movies, setMovies] = useState<DriveFile[]>([]);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<DriveFile | null>(null);
+
+  const filtered = movies.filter((m) =>
+    m.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   useEffect(() => {
     fetch("/api/movies")
@@ -48,20 +53,54 @@ export default function Home() {
 
         .page { padding: 0 24px 60px; max-width: 1400px; margin: 0 auto; }
 
-        header {
-          text-align: center;
-          padding: 52px 24px 40px;
-        }
+        header { text-align: center; padding: 52px 24px 32px; }
         header h1 {
           font-family: 'Bebas Neue', sans-serif;
           font-size: clamp(52px, 10vw, 100px);
-          letter-spacing: 6px;
-          color: #e50914;
-          line-height: 1;
+          letter-spacing: 6px; color: #e50914; line-height: 1;
           text-shadow: 0 0 60px rgba(229,9,20,.3);
         }
         header p { color: #555; font-size: 14px; margin-top: 8px; letter-spacing: 1px; }
 
+        /* ── Search ── */
+        .search-wrap {
+          max-width: 520px; margin: 0 auto 28px;
+          position: relative;
+        }
+        .search-icon {
+          position: absolute; left: 16px; top: 50%;
+          transform: translateY(-50%); color: #555;
+          font-size: 16px; pointer-events: none;
+        }
+        .search-input {
+          width: 100%; background: #111; border: 1px solid #2a2a2a;
+          border-radius: 14px; padding: 14px 44px;
+          color: #fff; font-size: 15px;
+          font-family: 'DM Sans', sans-serif;
+          outline: none; transition: border-color .2s, box-shadow .2s;
+        }
+        .search-input:focus {
+          border-color: #e50914;
+          box-shadow: 0 0 0 3px rgba(229,9,20,.12);
+        }
+        .search-input::placeholder { color: #444; }
+        .search-clear {
+          position: absolute; right: 14px; top: 50%;
+          transform: translateY(-50%);
+          background: #2a2a2a; border: none; color: #888;
+          width: 24px; height: 24px; border-radius: 50%;
+          font-size: 12px; cursor: pointer;
+          display: flex; align-items: center; justify-content: center;
+          transition: background .2s, color .2s;
+        }
+        .search-clear:hover { background: #e50914; color: #fff; }
+
+        .result-count {
+          text-align: center; color: #444; font-size: 13px; margin-bottom: 24px;
+        }
+        .result-count span { color: #e50914; font-weight: 600; }
+
+        /* ── Loader ── */
         .loader {
           display: flex; flex-direction: column;
           align-items: center; justify-content: center;
@@ -70,8 +109,7 @@ export default function Home() {
         .spinner {
           width: 36px; height: 36px;
           border: 3px solid #222; border-top-color: #e50914;
-          border-radius: 50%;
-          animation: spin .7s linear infinite;
+          border-radius: 50%; animation: spin .7s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -86,12 +124,15 @@ export default function Home() {
         .empty { text-align: center; padding: 80px 24px; color: #555; }
         .empty small { display: block; margin-top: 8px; font-size: 13px; color: #333; }
 
+        .no-results { text-align: center; padding: 60px 24px; color: #555; }
+        .no-results strong { display: block; font-size: 18px; color: #333; margin-bottom: 8px; }
+
+        /* ── Grid ── */
         .grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
           gap: 20px;
         }
-
         .card {
           background: #111; border: 1px solid #1f1f1f;
           border-radius: 16px; overflow: hidden; cursor: pointer;
@@ -99,22 +140,18 @@ export default function Home() {
           animation: fadeUp .4s ease both;
         }
         .card:hover {
-          border-color: #e50914;
-          transform: translateY(-5px);
+          border-color: #e50914; transform: translateY(-5px);
           box-shadow: 0 14px 40px rgba(229,9,20,.18);
         }
         @keyframes fadeUp {
           from { opacity:0; transform:translateY(18px); }
           to   { opacity:1; transform:translateY(0); }
         }
-
         .card img {
           width: 100%; aspect-ratio: 16/9; object-fit: cover;
-          display: block; background: #1a1a1a;
-          transition: transform .4s;
+          display: block; background: #1a1a1a; transition: transform .4s;
         }
         .card:hover img { transform: scale(1.05); }
-
         .card-body { padding: 14px; }
         .card-title {
           font-size: 13px; font-weight: 500; color: #ccc;
@@ -130,29 +167,23 @@ export default function Home() {
         .watch-btn:hover { background: #b0060f; }
         .watch-btn:active { transform: scale(.97); }
 
-        /* Modal */
+        /* ── Modal ── */
         .modal-overlay {
           position: fixed; inset: 0;
           background: rgba(0,0,0,.94); backdrop-filter: blur(12px);
           display: flex; align-items: center; justify-content: center;
-          z-index: 1000; padding: 20px;
-          animation: fadeIn .2s ease;
+          z-index: 1000; padding: 20px; animation: fadeIn .2s ease;
         }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-
         .modal-box {
-          width: 100%; max-width: 1000px;
-          background: #0e0e0e; border: 1px solid #222;
-          border-radius: 20px; overflow: hidden;
-          box-shadow: 0 30px 80px rgba(0,0,0,.8);
-          animation: scaleIn .2s ease;
+          width: 100%; max-width: 1000px; background: #0e0e0e;
+          border: 1px solid #222; border-radius: 20px; overflow: hidden;
+          box-shadow: 0 30px 80px rgba(0,0,0,.8); animation: scaleIn .2s ease;
         }
         @keyframes scaleIn { from { transform: scale(.95); } to { transform: scale(1); } }
-
         .modal-header {
           display: flex; align-items: center; justify-content: space-between;
-          padding: 16px 20px; border-bottom: 1px solid #1a1a1a;
-          gap: 12px;
+          padding: 16px 20px; border-bottom: 1px solid #1a1a1a; gap: 12px;
         }
         .modal-title {
           font-size: 14px; font-weight: 600; color: #ddd;
@@ -166,7 +197,6 @@ export default function Home() {
           transition: background .2s, border-color .2s;
         }
         .close-btn:hover { background: #e50914; border-color: #e50914; }
-
         .video-wrap {
           position: relative; padding-bottom: 56.25%; height: 0; background: #000;
         }
@@ -183,6 +213,32 @@ export default function Home() {
       </header>
 
       <div className="page">
+
+        {/* Search Bar — movies load হলেই দেখাবে */}
+        {!loading && !error && movies.length > 0 && (
+          <div className="search-wrap">
+            <span className="search-icon">🔍</span>
+            <input
+              className="search-input"
+              type="text"
+              placeholder="Search movies..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              autoComplete="off"
+            />
+            {search && (
+              <button className="search-clear" onClick={() => setSearch("")} aria-label="Clear">✕</button>
+            )}
+          </div>
+        )}
+
+        {/* Result count */}
+        {search && !loading && (
+          <div className="result-count">
+            <span>{filtered.length}</span> result{filtered.length !== 1 ? "s" : ""} for &quot;{search}&quot;
+          </div>
+        )}
+
         {loading && (
           <div className="loader">
             <div className="spinner" />
@@ -204,9 +260,17 @@ export default function Home() {
           </div>
         )}
 
-        {movies.length > 0 && (
+        {/* No search results */}
+        {!loading && search && filtered.length === 0 && (
+          <div className="no-results">
+            <strong>কোনো result নেই</strong>
+            &quot;{search}&quot; নামে কোনো movie পাওয়া যায়নি।
+          </div>
+        )}
+
+        {filtered.length > 0 && (
           <div className="grid">
-            {movies.map((movie, i) => (
+            {filtered.map((movie, i) => (
               <div
                 key={movie.id}
                 className="card"
