@@ -61,6 +61,8 @@ export default function Home() {
           text-shadow: 0 0 60px rgba(229,9,20,.3);
         }
         header p { color: #555; font-size: 14px; margin-top: 8px; letter-spacing: 1px; }
+        header h1 a { color: inherit; text-decoration: none; }
+        header h1 a:hover { opacity: .8; transition: opacity .2s; }
 
         /* ── Search ── */
         .search-wrap {
@@ -208,7 +210,7 @@ export default function Home() {
       `}</style>
 
       <header>
-        <h1>My Cinema</h1>
+        <h1><a href="/">My Cinema</a></h1>
         <p>Streaming directly from Google Drive</p>
       </header>
 
