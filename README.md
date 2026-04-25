@@ -20,7 +20,7 @@ A personal movie streaming site that streams videos directly from **Google Drive
 ### 1. Clone or Download
 
 ```bash
-git clone https://github.com/your-username/my-cinema.git
+git clone https://github.com/Kffaruk/my-stream-site.git
 cd my-cinema
 ```
 
