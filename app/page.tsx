@@ -210,8 +210,8 @@ export default function Home() {
       `}</style>
 
       <header>
-        <h1><a href="/">My Cinema</a></h1>
-        <p>Streaming directly from Google Drive</p>
+        <h1><a href="/">KF Faruk</a></h1>
+        <p>Streaming directly from Faruk Computer</p>
       </header>
 
       <div className="page">
